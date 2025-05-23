@@ -64,26 +64,15 @@ describe("Calucator", function () {
     });
   });
 
-  describe("Division", function () {
-    it("Should divide numbers correctly", async function () {
-      const { calculator } = await loadFixture(deployCalculatorFixture);
-
-      await calculator.add(20); // Start with 20
-      await calculator.div(4);
-      expect(await calculator.get()).to.equal(5n);
-
-      await calculator.div(5);
-      expect(await calculator.get()).to.equal(1n);
-    });
-
-    it("Should revert when dividing by zero", async function () {
+  describe("Reset", function () {
+    it("Should reset the result to 0", async function () {
       const { calculator } = await loadFixture(deployCalculatorFixture);
 
       await calculator.add(10);
-      //todo fix check for zero
-      await expect(calculator.div(0)).to.be.revertedWith(
-        "Division by zero is not allowed"
-      );
+      expect(await calculator.get()).to.equal(10n);
+
+      await calculator.reset();
+      expect(await calculator.get()).to.equal(0n);
     });
   });
 
@@ -94,9 +83,8 @@ describe("Calucator", function () {
       await calculator.add(10); // result = 10
       await calculator.mul(2); // result = 20
       await calculator.sub(5); // result = 15
-      await calculator.div(3); // result = 5
 
-      expect(await calculator.get()).to.equal(5n);
+      expect(await calculator.get()).to.equal(15n);
     });
   });
 });

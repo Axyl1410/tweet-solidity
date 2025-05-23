@@ -17,10 +17,8 @@ contract Calucator {
         result *= number;
     }
 
-    function div(uint256 number) public {
-        //todo fix check for zero
-        require(number != 0, "Division by zero is not allowed");
-        result /= number;
+    function reset() public {
+        result = 0;
     }
 
     function get() public view returns (uint256) {

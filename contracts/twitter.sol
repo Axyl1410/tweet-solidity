@@ -1,0 +1,60 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.28;
+
+contract Twitter {
+    uint16 constant MAX_TWEET_LENGTH = 280;
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    struct Tweet {
+        address author;
+        string content;
+        uint256 timestamp;
+        uint256 likes;
+    }
+
+    mapping(address => Tweet[]) public tweets;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the contract owner can call this");
+        _;
+    }
+
+    function createTweet(string memory _content) public {
+        require(bytes(_content).length > 0, "Tweet content cannot be empty");
+        require(
+            bytes(_content).length <= MAX_TWEET_LENGTH,
+            string(
+                abi.encodePacked(
+                    "Tweet content exceeds ",
+                    MAX_TWEET_LENGTH,
+                    " characters"
+                )
+            )
+        );
+
+        Tweet memory newTweet = Tweet({
+            author: msg.sender,
+            content: _content,
+            timestamp: block.timestamp,
+            likes: 0
+        });
+
+        tweets[msg.sender].push(newTweet);
+    }
+
+    function getTweet(uint256 _index) public view returns (Tweet memory) {
+        require(_index < tweets[msg.sender].length, "Tweet does not exist");
+        require(tweets[msg.sender].length > 0, "No tweets found for this user");
+
+        return tweets[msg.sender][_index];
+    }
+
+    function getAllTweets() public view returns (Tweet[] memory) {
+        return tweets[msg.sender];
+    }
+}
