@@ -11,11 +11,26 @@ contract Twitter {
     }
 
     struct Tweet {
+        uint256 id;
         address author;
         string content;
         uint256 timestamp;
         uint256 likes;
     }
+
+    event TweetCreated(
+        uint256 id,
+        address author,
+        string content,
+        uint256 timestamp
+    );
+    event TweetLiked(address liker, address author, uint256 id, uint256 likes);
+    event TweetUnliked(
+        address unliker,
+        address author,
+        uint256 id,
+        uint256 likes
+    );
 
     mapping(address => Tweet[]) public tweets;
 
@@ -38,6 +53,7 @@ contract Twitter {
         );
 
         Tweet memory newTweet = Tweet({
+            id: tweets[msg.sender].length,
             author: msg.sender,
             content: _content,
             timestamp: block.timestamp,
@@ -45,6 +61,12 @@ contract Twitter {
         });
 
         tweets[msg.sender].push(newTweet);
+        emit TweetCreated(
+            newTweet.id,
+            newTweet.author,
+            newTweet.content,
+            newTweet.timestamp
+        );
     }
 
     function getTweet(uint256 _index) public view returns (Tweet memory) {
@@ -56,5 +78,20 @@ contract Twitter {
 
     function getAllTweets() public view returns (Tweet[] memory) {
         return tweets[msg.sender];
+    }
+
+    function likeTweet(address _author, uint256 _id) external {
+        require(tweets[_author][_id].id == _id, "Tweet does not exist");
+
+        tweets[_author][_id].likes++;
+        emit TweetLiked(msg.sender, _author, _id, tweets[_author][_id].likes);
+    }
+
+    function unlikeTweet(address _author, uint256 _id) external {
+        require(tweets[_author][_id].id == _id, "Tweet does not exist");
+        require(tweets[_author][_id].likes > 0, "No likes to remove");
+
+        tweets[_author][_id].likes--;
+        emit TweetUnliked(msg.sender, _author, _id, tweets[_author][_id].likes);
     }
 }
