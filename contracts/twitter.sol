@@ -69,15 +69,19 @@ contract Twitter {
         );
     }
 
-    function getTweet(uint256 _index) public view returns (Tweet memory) {
+    function getUserTweet(uint256 _index) public view returns (Tweet memory) {
         require(_index < tweets[msg.sender].length, "Tweet does not exist");
         require(tweets[msg.sender].length > 0, "No tweets found for this user");
 
         return tweets[msg.sender][_index];
     }
 
-    function getAllTweets() public view returns (Tweet[] memory) {
-        return tweets[msg.sender];
+    function getAllUserTweets(
+        address _user
+    ) public view returns (Tweet[] memory) {
+        require(tweets[_user].length > 0, "No tweets found for this user");
+
+        return tweets[_user];
     }
 
     function likeTweet(address _author, uint256 _id) external {
@@ -85,6 +89,14 @@ contract Twitter {
 
         tweets[_author][_id].likes++;
         emit TweetLiked(msg.sender, _author, _id, tweets[_author][_id].likes);
+    }
+
+    function getTotalLikes(address _author) external view returns (uint256) {
+        uint256 totalLikes = 0;
+        for (uint256 i = 0; i < tweets[_author].length; i++) {
+            totalLikes += tweets[_author][i].likes;
+        }
+        return totalLikes;
     }
 
     function unlikeTweet(address _author, uint256 _id) external {
